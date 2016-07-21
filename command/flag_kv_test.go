@@ -8,7 +8,7 @@ import (
 )
 
 func TestFlagKV_impl(t *testing.T) {
-	var _ flag.Value = new(FlagKV)
+	var _ flag.Value = new(FlagStringKV)
 }
 
 func TestFlagKV(t *testing.T) {
@@ -49,7 +49,7 @@ func TestFlagKV(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		f := new(FlagKV)
+		f := new(FlagStringKV)
 		err := f.Set(tc.Input)
 		if err != nil != tc.Error {
 			t.Fatalf("bad error. Input: %#v", tc.Input)
@@ -76,24 +76,24 @@ foo = "bar"
 
 	cases := []struct {
 		Input  string
-		Output map[string]string
+		Output map[string]interface{}
 		Error  bool
 	}{
 		{
 			inputLibucl,
-			map[string]string{"foo": "bar"},
+			map[string]interface{}{"foo": "bar"},
 			false,
 		},
 
 		{
 			inputJson,
-			map[string]string{"foo": "bar"},
+			map[string]interface{}{"foo": "bar"},
 			false,
 		},
 
 		{
 			`map.key = "foo"`,
-			map[string]string{"map.key": "foo"},
+			map[string]interface{}{"map.key": "foo"},
 			false,
 		},
 	}
@@ -111,7 +111,7 @@ foo = "bar"
 			t.Fatalf("bad error. Input: %#v, err: %s", tc.Input, err)
 		}
 
-		actual := map[string]string(*f)
+		actual := map[string]interface{}(*f)
 		if !reflect.DeepEqual(actual, tc.Output) {
 			t.Fatalf("bad: %#v", actual)
 		}
