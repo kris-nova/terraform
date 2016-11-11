@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/terraform/config"
 	"github.com/hashicorp/terraform/config/module"
+	"os"
 )
 
 // InputMode defines what sort of input will be asked for when Input
@@ -560,6 +561,9 @@ func (c *Context) walk(
 	// Walk the graph
 	log.Printf("[DEBUG] Starting graph walk: %s", operation.String())
 	walker := &ContextGraphWalker{Context: c, Operation: operation}
+	log.Printf(walker)
+	log.Printf(walker.Operation)
+	os.Exit(1)
 	return walker, graph.Walk(walker)
 }
 

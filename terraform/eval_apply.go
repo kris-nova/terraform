@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform/config"
+	"os"
 )
 
 // EvalApply is an EvalNode implementation that writes the diff to
@@ -275,6 +276,23 @@ func (n *EvalApplyProvisioners) apply(ctx EvalContext) error {
 
 		// Invoke the Provisioner
 		output := CallbackUIOutput{OutputFn: outputFn}
+
+		log.Printf("===============================================================")
+		log.Printf("*^*")
+		log.Println("Preparing to call Apply!")
+		log.Println(provisioner)
+		log.Println(output)
+		log.Println(state)
+		log.Println(provConfig)
+		log.Printf("===============================================================")
+
+		log.Printf(ctx.Input())
+
+		os.Exit(1)
+
+
+
+		// Basically we want to only call Apply if this is an `Apply` operation and on_destroy is not defined
 		if err := provisioner.Apply(&output, state, provConfig); err != nil {
 			return err
 		}

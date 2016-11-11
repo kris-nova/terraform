@@ -17,9 +17,11 @@ type ResourceProvisioner struct{}
 
 // Apply executes the file provisioner
 func (p *ResourceProvisioner) Apply(
-	o terraform.UIOutput,
-	s *terraform.InstanceState,
-	c *terraform.ResourceConfig) error {
+
+o terraform.UIOutput,
+s *terraform.InstanceState,
+c *terraform.ResourceConfig) error {
+
 	// Get a new communicator
 	comm, err := communicator.New(s)
 	if err != nil {
@@ -48,18 +50,32 @@ func (p *ResourceProvisioner) Apply(
 func (p *ResourceProvisioner) Validate(c *terraform.ResourceConfig) (ws []string, es []error) {
 	numDst := 0
 	numSrc := 0
+	numDest := 0
 	for name := range c.Raw {
 		switch name {
 		case "destination":
 			numDst++
 		case "source", "content":
 			numSrc++
+		case "on_destroy":
+			odv, ok := c.Get("on_destroy")
+			if !ok { es = append(es, fmt.Errorf("Unable to infer `on_destroy` value"))}
+			switch odv {
+			case "require":
+				break
+			case "attempt":
+				break
+			default:
+				es = append(es, fmt.Errorf("Invalid `on_destroy` value."))
+			}
+			numDest++
 		default:
 			es = append(es, fmt.Errorf("Unknown configuration '%s'", name))
 		}
 	}
-	if numSrc != 1 || numDst != 1 {
-		es = append(es, fmt.Errorf("Must provide one  of 'content' or 'source' and 'destination' to file"))
+
+	if numSrc != 1 || numDst != 1 || numDest != 1 {
+		es = append(es, fmt.Errorf("Must provide one of 'content' or 'source', 'on_destroy' and 'destination' to file"))
 	}
 	return
 }
